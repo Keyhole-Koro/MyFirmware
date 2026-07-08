@@ -1,0 +1,61 @@
+// MyFirmware Main Entry
+// TODO: Initialize hardware, read SSD, load OS to RAM, and jump to it.
+
+// Simple serial output for firmware
+i32 SERIAL_TX_ADDR = 0x24000000;
+
+void print_str(char* str) {
+    i32 i = 0;
+    while ((i32)str[i] != 0) {
+        char* tx = (char*)SERIAL_TX_ADDR;
+        *tx = str[i];
+        i++;
+    }
+}
+
+i32 SSD_CMD_ADDR    = 0x24000010;
+i32 SSD_BLOCK_ADDR  = 0x24000014;
+i32 SSD_ADDR_ADDR   = 0x24000018;
+i32 SSD_STATUS_ADDR = 0x2400001C;
+
+i32 SSD_CMD_READ    = 1;
+i32 SSD_STATUS_DONE = 2;
+
+// External function defined in jump.masm
+extern void jump_to_kernel();
+
+export void fw_main() {
+    print_str("firmware: booting system...\n");
+    print_str("firmware: loading OS from SSD...\n");
+
+    // Load kernel from block 16000 into RAM at 0x00100000.
+    // 10 blocks = 640 KB. This should be enough for MyKernel.
+    i32 block = 16000;
+    i32 addr = 0x00100000;
+    i32 i = 0;
+    while (i < 10) {
+        i32* p_block = (i32*)SSD_BLOCK_ADDR;
+        i32* p_addr  = (i32*)SSD_ADDR_ADDR;
+        i32* p_cmd   = (i32*)SSD_CMD_ADDR;
+        i32* p_status = (i32*)SSD_STATUS_ADDR;
+
+        *p_block = block;
+        *p_addr = addr;
+        *p_cmd = SSD_CMD_READ;
+
+        // Busy-wait for completion
+        while (*p_status == 0) { }
+
+        if (*p_status != SSD_STATUS_DONE) {
+            print_str("firmware: SSD read error!\n");
+            return;
+        }
+
+        block = block + 1;
+        addr = addr + 65536;
+        i = i + 1;
+    }
+
+    print_str("firmware: OS loaded. Jumping to Kernel...\n");
+    jump_to_kernel();
+}

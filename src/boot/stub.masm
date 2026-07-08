@@ -1,0 +1,5 @@
+import { main_fw_main } from "../fw/main.mln"
+
+__START__:
+  call main_fw_main
+  halt

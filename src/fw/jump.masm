@@ -1,0 +1,5 @@
+export jump_to_kernel
+
+jump_to_kernel:
+  movi r1, 0x00100000
+  mov pc, r1
