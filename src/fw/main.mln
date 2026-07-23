@@ -19,6 +19,7 @@ i32 SSD_ADDR_ADDR   = 0x24000018;
 i32 SSD_STATUS_ADDR = 0x2400001C;
 
 i32 SSD_CMD_READ    = 1;
+i32 SSD_STATUS_BUSY = 1;
 i32 SSD_STATUS_DONE = 2;
 
 // External function defined in jump.masm
@@ -43,8 +44,9 @@ export void fw_main() {
         *p_addr = addr;
         *p_cmd = SSD_CMD_READ;
 
-        // Busy-wait for completion
-        while (*p_status == 0) { }
+        // The DMA runs asynchronously: STATUS reads BUSY until the device
+        // completes the transfer. Interrupts are off in firmware, so busy-poll.
+        while (*p_status == SSD_STATUS_BUSY) { }
 
         if (*p_status != SSD_STATUS_DONE) {
             print_str("firmware: SSD read error!\n");
