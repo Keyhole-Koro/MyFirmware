@@ -1,4 +1,4 @@
-import { main_fw_main } from "../fw/main.mln"
+import { main_fw_main } from "../fw/main.unsafe.mln"
 
 __START__:
   call main_fw_main
