@@ -4,11 +4,11 @@
 // Simple serial output for firmware
 i32 SERIAL_TX_ADDR = 0x24000000;
 
-void print_str(char* str) {
+void print_str(str s) {
     i32 i = 0;
-    while ((i32)str[i] != 0) {
+    while (i < s.length) {
         char* tx = (char*)SERIAL_TX_ADDR;
-        *tx = str[i];
+        *tx = s.data[i];
         i++;
     }
 }
