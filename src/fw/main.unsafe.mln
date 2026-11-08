@@ -31,7 +31,8 @@ export void fw_main() {
 
     // Load kernel from block 16000 into RAM at 0x00100000.
     // KERNEL_BLOCKS blocks of 64 KB; the image (text + data) must fit --
-    // qa/runners/run_system.py checks the built size against this.
+    // tools/mkfs.py's embed_kernel refuses a bigger one, so keep its
+    // KERNEL_BLOCKS equal to this.
     i32 KERNEL_BLOCKS = 16;   // 1 MB
     i32 block = 16000;
     i32 addr = 0x00100000;
