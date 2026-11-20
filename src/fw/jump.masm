@@ -1,5 +1,7 @@
 export jump_to_kernel
 
+; Jumps to KERNEL_BASE in main.unsafe.mln, where the kernel image was loaded
+; (keep the two equal; tests/boot_test.py checks it).
 jump_to_kernel:
   movi r1, 0x00100000
   mov pc, r1
